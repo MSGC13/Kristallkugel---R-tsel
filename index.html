@@ -29,13 +29,14 @@
             border: 5px solid gold;
             border-radius: 50%;
             position: relative;
-            touch-action: none;
+            touch-action: manipulation;
         }
         .kugel {
             width: 130px;
             height: 130px;
             background-size: cover;
             border-radius: 50%;
+            background-position: center;
         }
         .kugel-container span {
             position: absolute;
@@ -69,10 +70,10 @@
     <p>Ziehe die Kugeln in die richtige Reihenfolge und bestätige deine Auswahl.</p>
     
     <div id="game-container">
-        <div class="kugel-container" draggable="true" id="zahl1" style="background-image: url('zahl1.png');"></div>
-        <div class="kugel-container" draggable="true" id="zahl2" style="background-image: url('zahl2.png');"></div>
-        <div class="kugel-container" draggable="true" id="zahl3" style="background-image: url('zahl3.png');"></div>
-        <div class="kugel-container" draggable="true" id="zahl4" style="background-image: url('zahl4.png');"></div>
+        <div class="kugel-container" id="zahl1" draggable="true"><div class="kugel" style="background-image: url('zahl1.png');"></div></div>
+        <div class="kugel-container" id="zahl2" draggable="true"><div class="kugel" style="background-image: url('zahl2.png');"></div></div>
+        <div class="kugel-container" id="zahl3" draggable="true"><div class="kugel" style="background-image: url('zahl3.png');"></div></div>
+        <div class="kugel-container" id="zahl4" draggable="true"><div class="kugel" style="background-image: url('zahl4.png');"></div></div>
     </div>
     
     <button id="submit-btn">Bestätigen</button>
@@ -95,40 +96,24 @@
         items.forEach(item => {
             item.addEventListener("dragstart", (event) => {
                 draggedItem = item;
-                event.dataTransfer.effectAllowed = "move";
-                event.dataTransfer.setData("text/html", item.outerHTML);
-                item.classList.add("dragging");
+                event.dataTransfer.setData("text", draggedItem.id);
             });
             item.addEventListener("dragover", (event) => {
                 event.preventDefault();
             });
             item.addEventListener("drop", (event) => {
                 event.preventDefault();
-                if (draggedItem !== item) {
+                let targetItem = event.target.closest(".kugel-container");
+                if (draggedItem && targetItem && draggedItem !== targetItem) {
                     let draggedIndex = items.indexOf(draggedItem);
-                    let targetIndex = items.indexOf(item);
-                    container.insertBefore(draggedItem, items[targetIndex]);
+                    let targetIndex = items.indexOf(targetItem);
+                    if (draggedIndex > targetIndex) {
+                        container.insertBefore(draggedItem, targetItem);
+                    } else {
+                        container.insertBefore(draggedItem, targetItem.nextSibling);
+                    }
                     items = Array.from(document.getElementsByClassName("kugel-container"));
                 }
-            });
-        });
-
-        // Touch-Unterstützung
-        items.forEach(item => {
-            item.addEventListener("touchstart", (event) => {
-                draggedItem = item;
-                event.target.style.opacity = "0.5";
-            });
-            item.addEventListener("touchmove", (event) => {
-                event.preventDefault();
-                let touchLocation = event.targetTouches[0];
-                draggedItem.style.position = "absolute";
-                draggedItem.style.left = touchLocation.pageX - 50 + "px";
-                draggedItem.style.top = touchLocation.pageY - 50 + "px";
-            });
-            item.addEventListener("touchend", (event) => {
-                draggedItem.style.opacity = "1";
-                draggedItem.style.position = "relative";
             });
         });
 
