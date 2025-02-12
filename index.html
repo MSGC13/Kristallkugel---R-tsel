@@ -19,13 +19,28 @@
             gap: 20px;
             padding: 20px;
         }
-        .kugel {
-            width: 100px;
-            height: 100px;
-            background-size: cover;
-            border: 2px solid #8b6f47;
+        .kugel-container {
+            width: 160px;  /* Größerer Kreis */
+            height: 160px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 4px solid gold; /* Kreis-Rahmen */
             border-radius: 50%;
-            cursor: grab;
+            position: relative;
+        }
+        .kugel {
+            width: 120px;  /* Größe der Kugel */
+            height: 120px;
+            background-size: cover;
+            border-radius: 50%;
+        }
+        .kugel-container span {
+            position: absolute;
+            bottom: -25px; /* Zahl unter die Kugel setzen */
+            font-size: 24px; /* Größere Schrift */
+            color: brown;
+            font-weight: bold;
         }
         #feedback {
             margin-top: 20px;
@@ -49,10 +64,22 @@
     <p>Ziehe die Kugeln in die richtige Reihenfolge und bestätige deine Auswahl.</p>
     
     <div id="game-container">
-        <div class="kugel" draggable="true" id="kugel1" style="background-image: url('kugel1.png');"></div>
-        <div class="kugel" draggable="true" id="kugel2" style="background-image: url('kugel2.png');"></div>
-        <div class="kugel" draggable="true" id="kugel3" style="background-image: url('kugel3.png');"></div>
-        <div class="kugel" draggable="true" id="kugel4" style="background-image: url('kugel4.png');"></div>
+        <div class="kugel-container">
+            <div class="kugel" draggable="true" id="kugel1" style="background-image: url('kugel1.png');"></div>
+            <span>6</span>
+        </div>
+        <div class="kugel-container">
+            <div class="kugel" draggable="true" id="kugel2" style="background-image: url('kugel2.png');"></div>
+            <span>8</span>
+        </div>
+        <div class="kugel-container">
+            <div class="kugel" draggable="true" id="kugel3" style="background-image: url('kugel3.png');"></div>
+            <span>9</span>
+        </div>
+        <div class="kugel-container">
+            <div class="kugel" draggable="true" id="kugel4" style="background-image: url('kugel4.png');"></div>
+            <span>1</span>
+        </div>
     </div>
     
     <button id="submit-btn">Bestätigen</button>
@@ -99,3 +126,4 @@
     </script>
 </body>
 </html>
+
