@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kristallkugel-Rätsel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4e4c3;
+            text-align: center;
+        }
+        h1 {
+            color: #4a2b12;
+        }
+        #game-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .kugel {
+            width: 100px;
+            height: 100px;
+            background-size: cover;
+            border: 2px solid #8b6f47;
+            border-radius: 50%;
+            cursor: grab;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #submit-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4a2b12;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ordne die Kristallkugeln in die richtige Reihenfolge</h1>
+    <p>Ziehe die Kugeln in die richtige Reihenfolge und bestätige deine Auswahl.</p>
+    
+    <div id="game-container">
+        <div class="kugel" draggable="true" id="kugel1" style="background-image: url('kugel1.png');"></div>
+        <div class="kugel" draggable="true" id="kugel2" style="background-image: url('kugel2.png');"></div>
+        <div class="kugel" draggable="true" id="kugel3" style="background-image: url('kugel3.png');"></div>
+        <div class="kugel" draggable="true" id="kugel4" style="background-image: url('kugel4.png');"></div>
+    </div>
+    
+    <button id="submit-btn">Bestätigen</button>
+    <p id="feedback"></p>
+    
+    <script>
+        let container = document.getElementById("game-container");
+        let draggedItem = null;
+
+        container.addEventListener("dragstart", (event) => {
+            draggedItem = event.target;
+            event.target.style.opacity = "0.5";
+        });
+
+        container.addEventListener("dragend", (event) => {
+            event.target.style.opacity = "1";
+        });
+
+        container.addEventListener("dragover", (event) => {
+            event.preventDefault();
+        });
+
+        container.addEventListener("drop", (event) => {
+            event.preventDefault();
+            if (event.target.classList.contains("kugel")) {
+                let temp = event.target.style.backgroundImage;
+                event.target.style.backgroundImage = draggedItem.style.backgroundImage;
+                draggedItem.style.backgroundImage = temp;
+            }
+        });
+
+        document.getElementById("submit-btn").addEventListener("click", () => {
+            let order = Array.from(document.getElementsByClassName("kugel"))
+                .map(kugel => kugel.style.backgroundImage);
+            
+            let correctOrder = ["url('kugel4.png')", "url('kugel3.png')", "url('kugel2.png')", "url('kugel1.png')"];
+            
+            if (JSON.stringify(order) === JSON.stringify(correctOrder)) {
+                document.getElementById("feedback").textContent = "✅ Richtige Reihenfolge! Du hast den Code geknackt!";
+            } else {
+                document.getElementById("feedback").textContent = "❌ Falsche Reihenfolge! Versuche es erneut.";
+            }
+        });
+    </script>
+</body>
+</html>
