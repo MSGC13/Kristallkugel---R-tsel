@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -20,27 +21,30 @@
             padding: 20px;
         }
         .kugel-container {
-            width: 160px;  /* Größerer Kreis */
-            height: 160px;
+            width: 180px;  /* Noch größerer Kreis für bessere Sichtbarkeit */
+            height: 180px;
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 4px solid gold; /* Kreis-Rahmen */
+            border: 5px solid gold; /* Deutlichere Umrandung */
             border-radius: 50%;
             position: relative;
         }
         .kugel {
-            width: 120px;  /* Größe der Kugel */
-            height: 120px;
+            width: 130px;  /* Etwas größere Kugel */
+            height: 130px;
             background-size: cover;
             border-radius: 50%;
         }
         .kugel-container span {
             position: absolute;
-            bottom: -25px; /* Zahl unter die Kugel setzen */
-            font-size: 24px; /* Größere Schrift */
+            bottom: -30px; /* Zahl noch weiter nach unten setzen */
+            font-size: 28px; /* Noch größere Schrift */
             color: brown;
             font-weight: bold;
+            background: rgba(255, 255, 255, 0.8); /* Leichter Hintergrund für bessere Sichtbarkeit */
+            padding: 5px 10px;
+            border-radius: 5px;
         }
         #feedback {
             margin-top: 20px;
@@ -126,4 +130,3 @@
     </script>
 </body>
 </html>
-
