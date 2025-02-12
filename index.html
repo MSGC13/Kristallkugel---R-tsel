@@ -67,19 +67,19 @@
     <p>Ziehe die Kugeln in die richtige Reihenfolge und bestätige deine Auswahl.</p>
     
     <div id="game-container">
-        <div class="kugel-container">
-            <div class="kugel" draggable="true" id="zahl1" style="background-image: url('Zahl1.png');"></div>
+        <div class="kugel-container" id="container1">
+            <div class="kugel" draggable="true" id="zahl1" style="background-image: url('zahl1.png');"></div>
             <span>1</span>
         </div>
-        <div class="kugel-container">
+        <div class="kugel-container" id="container2">
             <div class="kugel" draggable="true" id="zahl2" style="background-image: url('zahl2.png');"></div>
             <span>8</span>
         </div>
-        <div class="kugel-container">
+        <div class="kugel-container" id="container3">
             <div class="kugel" draggable="true" id="zahl3" style="background-image: url('zahl3.png');"></div>
             <span>6</span>
         </div>
-        <div class="kugel-container">
+        <div class="kugel-container" id="container4">
             <div class="kugel" draggable="true" id="zahl4" style="background-image: url('zahl4.png');"></div>
             <span>9</span>
         </div>
@@ -90,10 +90,21 @@
     
     <script>
         let container = document.getElementById("game-container");
+        let items = Array.from(document.getElementsByClassName("kugel-container"));
+        
+        // Bilder zufällig mischen
+        function shuffleItems() {
+            for (let i = items.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                container.appendChild(items[j]);
+            }
+        }
+        shuffleItems();
+        
         let draggedItem = null;
 
         container.addEventListener("dragstart", (event) => {
-            draggedItem = event.target;
+            draggedItem = event.target.closest(".kugel-container");
             event.target.style.opacity = "0.5";
         });
 
@@ -107,18 +118,25 @@
 
         container.addEventListener("drop", (event) => {
             event.preventDefault();
-            if (event.target.classList.contains("kugel")) {
-                let temp = event.target.style.backgroundImage;
-                event.target.style.backgroundImage = draggedItem.style.backgroundImage;
-                draggedItem.style.backgroundImage = temp;
+            let targetItem = event.target.closest(".kugel-container");
+            if (targetItem && draggedItem !== targetItem) {
+                let parent = container;
+                let items = Array.from(parent.children);
+                let draggedIndex = items.indexOf(draggedItem);
+                let targetIndex = items.indexOf(targetItem);
+                if (draggedIndex > targetIndex) {
+                    parent.insertBefore(draggedItem, targetItem);
+                } else {
+                    parent.insertBefore(draggedItem, targetItem.nextSibling);
+                }
             }
         });
 
         document.getElementById("submit-btn").addEventListener("click", () => {
-            let order = Array.from(document.getElementsByClassName("kugel"))
-                .map(kugel => kugel.style.backgroundImage);
+            let order = Array.from(document.getElementsByClassName("kugel-container"))
+                .map(container => container.querySelector(".kugel").id);
             
-            let correctOrder = ["url('kugel4.png')", "url('kugel3.png')", "url('kugel2.png')", "url('kugel1.png')"];
+            let correctOrder = ["zahl1", "zahl2", "zahl3", "zahl4"];
             
             if (JSON.stringify(order) === JSON.stringify(correctOrder)) {
                 document.getElementById("feedback").textContent = "✅ Richtige Reihenfolge! Du hast den Code geknackt!";
@@ -129,6 +147,7 @@
     </script>
 </body>
 </html>
+
 
 
 
