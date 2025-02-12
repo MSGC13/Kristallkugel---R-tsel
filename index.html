@@ -18,30 +18,32 @@
             justify-content: center;
             gap: 20px;
             padding: 20px;
+            flex-wrap: wrap;
         }
         .kugel-container {
-            width: 180px;  /* Noch größerer Kreis für bessere Sichtbarkeit */
+            width: 180px;
             height: 180px;
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 5px solid gold; /* Deutlichere Umrandung */
+            border: 5px solid gold;
             border-radius: 50%;
             position: relative;
+            touch-action: none;
         }
         .kugel {
-            width: 130px;  /* Etwas größere Kugel */
+            width: 130px;
             height: 130px;
             background-size: cover;
             border-radius: 50%;
         }
         .kugel-container span {
             position: absolute;
-            bottom: -30px; /* Zahl noch weiter nach unten setzen */
-            font-size: 28px; /* Noch größere Schrift */
+            bottom: -30px;
+            font-size: 28px;
             color: brown;
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.8); /* Leichter Hintergrund für bessere Sichtbarkeit */
+            background: rgba(255, 255, 255, 0.8);
             padding: 5px 10px;
             border-radius: 5px;
         }
@@ -67,22 +69,10 @@
     <p>Ziehe die Kugeln in die richtige Reihenfolge und bestätige deine Auswahl.</p>
     
     <div id="game-container">
-        <div class="kugel-container" id="container1">
-            <div class="kugel" draggable="true" id="zahl1" style="background-image: url('zahl1.png');"></div>
-            <span>1</span>
-        </div>
-        <div class="kugel-container" id="container2">
-            <div class="kugel" draggable="true" id="zahl2" style="background-image: url('zahl2.png');"></div>
-            <span>8</span>
-        </div>
-        <div class="kugel-container" id="container3">
-            <div class="kugel" draggable="true" id="zahl3" style="background-image: url('zahl3.png');"></div>
-            <span>6</span>
-        </div>
-        <div class="kugel-container" id="container4">
-            <div class="kugel" draggable="true" id="zahl4" style="background-image: url('zahl4.png');"></div>
-            <span>9</span>
-        </div>
+        <div class="kugel-container" draggable="true" id="zahl1" style="background-image: url('zahl1.png');"></div>
+        <div class="kugel-container" draggable="true" id="zahl2" style="background-image: url('zahl2.png');"></div>
+        <div class="kugel-container" draggable="true" id="zahl3" style="background-image: url('zahl3.png');"></div>
+        <div class="kugel-container" draggable="true" id="zahl4" style="background-image: url('zahl4.png');"></div>
     </div>
     
     <button id="submit-btn">Bestätigen</button>
@@ -91,8 +81,7 @@
     <script>
         let container = document.getElementById("game-container");
         let items = Array.from(document.getElementsByClassName("kugel-container"));
-        
-        // Bilder zufällig mischen
+
         function shuffleItems() {
             for (let i = items.length - 1; i > 0; i--) {
                 let j = Math.floor(Math.random() * (i + 1));
@@ -100,41 +89,52 @@
             }
         }
         shuffleItems();
-        
+
         let draggedItem = null;
 
-        container.addEventListener("dragstart", (event) => {
-            draggedItem = event.target.closest(".kugel-container");
-            event.target.style.opacity = "0.5";
-        });
-
-        container.addEventListener("dragend", (event) => {
-            event.target.style.opacity = "1";
-        });
-
-        container.addEventListener("dragover", (event) => {
-            event.preventDefault();
-        });
-
-        container.addEventListener("drop", (event) => {
-            event.preventDefault();
-            let targetItem = event.target.closest(".kugel-container");
-            if (targetItem && draggedItem !== targetItem) {
-                let parent = container;
-                let items = Array.from(parent.children);
-                let draggedIndex = items.indexOf(draggedItem);
-                let targetIndex = items.indexOf(targetItem);
-                if (draggedIndex > targetIndex) {
-                    parent.insertBefore(draggedItem, targetItem);
-                } else {
-                    parent.insertBefore(draggedItem, targetItem.nextSibling);
+        items.forEach(item => {
+            item.addEventListener("dragstart", (event) => {
+                draggedItem = item;
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/html", item.outerHTML);
+                item.classList.add("dragging");
+            });
+            item.addEventListener("dragover", (event) => {
+                event.preventDefault();
+            });
+            item.addEventListener("drop", (event) => {
+                event.preventDefault();
+                if (draggedItem !== item) {
+                    let draggedIndex = items.indexOf(draggedItem);
+                    let targetIndex = items.indexOf(item);
+                    container.insertBefore(draggedItem, items[targetIndex]);
+                    items = Array.from(document.getElementsByClassName("kugel-container"));
                 }
-            }
+            });
+        });
+
+        // Touch-Unterstützung
+        items.forEach(item => {
+            item.addEventListener("touchstart", (event) => {
+                draggedItem = item;
+                event.target.style.opacity = "0.5";
+            });
+            item.addEventListener("touchmove", (event) => {
+                event.preventDefault();
+                let touchLocation = event.targetTouches[0];
+                draggedItem.style.position = "absolute";
+                draggedItem.style.left = touchLocation.pageX - 50 + "px";
+                draggedItem.style.top = touchLocation.pageY - 50 + "px";
+            });
+            item.addEventListener("touchend", (event) => {
+                draggedItem.style.opacity = "1";
+                draggedItem.style.position = "relative";
+            });
         });
 
         document.getElementById("submit-btn").addEventListener("click", () => {
             let order = Array.from(document.getElementsByClassName("kugel-container"))
-                .map(container => container.querySelector(".kugel").id);
+                .map(container => container.id);
             
             let correctOrder = ["zahl1", "zahl2", "zahl3", "zahl4"];
             
