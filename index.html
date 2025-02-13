@@ -93,19 +93,19 @@
     <p>Ziehe die Kugeln mit dem Finger oder der Maus in die richtige Reihenfolge und bestätige deine Auswahl.</p>
     
     <div id="game-container">
-        <div class="kugel-container" draggable="true">
+        <div class="kugel-container" data-value="1">
             <div class="kugel" style="background-image: url('zahl1.png');"></div>
             <span>1</span>
         </div>
-        <div class="kugel-container" draggable="true">
+        <div class="kugel-container" data-value="8">
             <div class="kugel" style="background-image: url('zahl2.png');"></div>
             <span>8</span>
         </div>
-        <div class="kugel-container" draggable="true">
+        <div class="kugel-container" data-value="6">
             <div class="kugel" style="background-image: url('zahl3.png');"></div>
             <span>6</span>
         </div>
-        <div class="kugel-container" draggable="true">
+        <div class="kugel-container" data-value="9">
             <div class="kugel" style="background-image: url('zahl4.png');"></div>
             <span>9</span>
         </div>
@@ -125,26 +125,26 @@
         shuffleItems();
         
         let draggedItem = null;
-        let startIndex = null;
-
-        items.forEach((item, index) => {
-            item.addEventListener("dragstart", (event) => {
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        items.forEach((item) => {
+            item.addEventListener("touchstart", (event) => {
                 draggedItem = item;
-                startIndex = items.indexOf(draggedItem);
-                setTimeout(() => (item.style.opacity = "0.5"), 0);
+                touchStartY = event.touches[0].clientY;
             });
-            item.addEventListener("dragend", () => {
-                draggedItem.style.opacity = "1";
-                draggedItem = null;
-            });
-            item.addEventListener("dragover", (event) => {
+
+            item.addEventListener("touchmove", (event) => {
                 event.preventDefault();
+                touchEndY = event.touches[0].clientY;
             });
-            item.addEventListener("drop", (event) => {
-                event.preventDefault();
-                let targetIndex = items.indexOf(item);
-                if (targetIndex !== startIndex) {
-                    container.insertBefore(draggedItem, targetIndex > startIndex ? item.nextSibling : item);
+
+            item.addEventListener("touchend", () => {
+                let index = items.indexOf(draggedItem);
+                let targetIndex = index + (touchEndY > touchStartY ? 1 : -1);
+                
+                if (targetIndex >= 0 && targetIndex < items.length) {
+                    container.insertBefore(draggedItem, targetIndex > index ? items[targetIndex].nextSibling : items[targetIndex]);
                     items = Array.from(document.getElementsByClassName("kugel-container"));
                 }
             });
@@ -152,7 +152,7 @@
         
         document.getElementById("submit-btn").addEventListener("click", () => {
             let order = Array.from(document.getElementsByClassName("kugel-container"))
-                .map(container => container.textContent.trim());
+                .map(container => container.dataset.value);
             
             let correctOrder = ["1", "8", "6", "9"];
             
