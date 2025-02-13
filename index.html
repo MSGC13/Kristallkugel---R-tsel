@@ -5,12 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Kristallkugel-Rätsel</title>
     <style>
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             font-family: Arial, sans-serif;
             background: #2b1b0f;
             text-align: center;
             color: white;
-            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            touch-action: none;
         }
         h1 {
             color: gold;
@@ -23,6 +30,7 @@
             gap: 20px;
             padding: 20px;
             flex-wrap: wrap;
+            transform: rotate(90deg); /* Querformat erzwingen */
         }
         .kugel-container {
             width: 180px;
@@ -33,7 +41,6 @@
             border: 5px solid gold;
             border-radius: 50%;
             position: relative;
-            touch-action: none;
             background-color: rgba(0, 0, 0, 0.3);
         }
         .kugel {
@@ -76,19 +83,19 @@
     <p>Ziehe die Kugeln mit dem Finger oder der Maus in die richtige Reihenfolge und bestätige deine Auswahl.</p>
     
     <div id="game-container">
-        <div class="kugel-container" id="zahl1" draggable="true" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+        <div class="kugel-container" id="zahl1" draggable="true">
             <div class="kugel" style="background-image: url('zahl1.png');"></div>
             <span>1</span>
         </div>
-        <div class="kugel-container" id="zahl2" draggable="true" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+        <div class="kugel-container" id="zahl2" draggable="true">
             <div class="kugel" style="background-image: url('zahl2.png');"></div>
             <span>8</span>
         </div>
-        <div class="kugel-container" id="zahl3" draggable="true" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+        <div class="kugel-container" id="zahl3" draggable="true">
             <div class="kugel" style="background-image: url('zahl3.png');"></div>
             <span>6</span>
         </div>
-        <div class="kugel-container" id="zahl4" draggable="true" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+        <div class="kugel-container" id="zahl4" draggable="true">
             <div class="kugel" style="background-image: url('zahl4.png');"></div>
             <span>9</span>
         </div>
@@ -98,33 +105,43 @@
     <p id="feedback"></p>
     
     <script>
+        let container = document.getElementById("game-container");
+        let items = Array.from(document.getElementsByClassName("kugel-container"));
+        
+        function shuffleItems() {
+            for (let i = items.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                container.appendChild(items[j]);
+            }
+        }
+        shuffleItems();
+
         let draggedItem = null;
-        let startY = 0;
-        let startX = 0;
-        
-        function touchStart(event) {
-            draggedItem = event.target.closest(".kugel-container");
-            startX = event.touches[0].clientX;
-            startY = event.touches[0].clientY;
-            event.preventDefault();
-        }
-        
-        function touchMove(event) {
-            if (!draggedItem) return;
-            let touch = event.touches[0];
-            let moveX = touch.clientX - startX;
-            let moveY = touch.clientY - startY;
-            draggedItem.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            event.preventDefault();
-        }
-        
-        function touchEnd(event) {
-            if (!draggedItem) return;
-            draggedItem.style.transform = "";
-            draggedItem = null;
-            event.preventDefault();
-        }
-        
+
+        items.forEach(item => {
+            item.addEventListener("dragstart", (event) => {
+                draggedItem = item;
+                event.dataTransfer.setData("text", draggedItem.id);
+            });
+            item.addEventListener("dragover", (event) => {
+                event.preventDefault();
+            });
+            item.addEventListener("drop", (event) => {
+                event.preventDefault();
+                let targetItem = event.target.closest(".kugel-container");
+                if (draggedItem && targetItem && draggedItem !== targetItem) {
+                    let draggedIndex = items.indexOf(draggedItem);
+                    let targetIndex = items.indexOf(targetItem);
+                    if (draggedIndex > targetIndex) {
+                        container.insertBefore(draggedItem, targetItem);
+                    } else {
+                        container.insertBefore(draggedItem, targetItem.nextSibling);
+                    }
+                    items = Array.from(document.getElementsByClassName("kugel-container"));
+                }
+            });
+        });
+
         document.getElementById("submit-btn").addEventListener("click", () => {
             let order = Array.from(document.getElementsByClassName("kugel-container"))
                 .map(container => container.id);
