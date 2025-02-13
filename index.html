@@ -80,6 +80,12 @@
             border: none;
             border-radius: 5px;
         }
+        @media screen and (orientation: landscape) {
+            #game-container {
+                flex-direction: row;
+                flex-wrap: nowrap;
+            }
+        }
     </style>
 </head>
 <body>
@@ -87,19 +93,19 @@
     <p>Ziehe die Kugeln mit dem Finger oder der Maus in die richtige Reihenfolge und bestätige deine Auswahl.</p>
     
     <div id="game-container">
-        <div class="kugel-container" id="zahl1" draggable="true">
+        <div class="kugel-container" draggable="true">
             <div class="kugel" style="background-image: url('zahl1.png');"></div>
             <span>1</span>
         </div>
-        <div class="kugel-container" id="zahl2" draggable="true">
+        <div class="kugel-container" draggable="true">
             <div class="kugel" style="background-image: url('zahl2.png');"></div>
             <span>8</span>
         </div>
-        <div class="kugel-container" id="zahl3" draggable="true">
+        <div class="kugel-container" draggable="true">
             <div class="kugel" style="background-image: url('zahl3.png');"></div>
             <span>6</span>
         </div>
-        <div class="kugel-container" id="zahl4" draggable="true">
+        <div class="kugel-container" draggable="true">
             <div class="kugel" style="background-image: url('zahl4.png');"></div>
             <span>9</span>
         </div>
@@ -113,36 +119,42 @@
         let items = Array.from(document.getElementsByClassName("kugel-container"));
         
         function shuffleItems() {
-            for (let i = items.length - 1; i > 0; i--) {
-                let j = Math.floor(Math.random() * (i + 1));
-                container.appendChild(items[j]);
-            }
+            items.sort(() => Math.random() - 0.5);
+            items.forEach(item => container.appendChild(item));
         }
         shuffleItems();
-
+        
         let draggedItem = null;
+        let startIndex = null;
 
-        items.forEach(item => {
-            item.addEventListener("touchstart", (event) => {
+        items.forEach((item, index) => {
+            item.addEventListener("dragstart", (event) => {
                 draggedItem = item;
-                event.target.style.opacity = "0.5";
+                startIndex = items.indexOf(draggedItem);
+                setTimeout(() => (item.style.opacity = "0.5"), 0);
             });
-            item.addEventListener("touchend", (event) => {
-                event.target.style.opacity = "1";
+            item.addEventListener("dragend", () => {
+                draggedItem.style.opacity = "1";
                 draggedItem = null;
             });
-            item.addEventListener("touchmove", (event) => {
-                if (!draggedItem) return;
-                let touchLocation = event.targetTouches[0];
-                draggedItem.style.transform = `translate(${touchLocation.pageX}px, ${touchLocation.pageY}px)`;
+            item.addEventListener("dragover", (event) => {
+                event.preventDefault();
+            });
+            item.addEventListener("drop", (event) => {
+                event.preventDefault();
+                let targetIndex = items.indexOf(item);
+                if (targetIndex !== startIndex) {
+                    container.insertBefore(draggedItem, targetIndex > startIndex ? item.nextSibling : item);
+                    items = Array.from(document.getElementsByClassName("kugel-container"));
+                }
             });
         });
-
+        
         document.getElementById("submit-btn").addEventListener("click", () => {
             let order = Array.from(document.getElementsByClassName("kugel-container"))
-                .map(container => container.id);
+                .map(container => container.textContent.trim());
             
-            let correctOrder = ["zahl1", "zahl2", "zahl3", "zahl4"];
+            let correctOrder = ["1", "8", "6", "9"];
             
             if (JSON.stringify(order) === JSON.stringify(correctOrder)) {
                 document.getElementById("feedback").textContent = "✅ Richtige Reihenfolge! Du hast den Code geknackt!";
@@ -153,5 +165,3 @@
     </script>
 </body>
 </html>
-
-
