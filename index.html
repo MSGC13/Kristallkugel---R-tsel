@@ -39,6 +39,7 @@
             background-size: cover;
             border-radius: 50%;
             background-position: center;
+            cursor: grab;
         }
         .kugel-container span {
             position: absolute;
@@ -69,22 +70,22 @@
 </head>
 <body>
     <h1>Ordne die Kristallkugeln in die richtige Reihenfolge</h1>
-    <p>Ziehe die Kugeln in die richtige Reihenfolge und bestätige deine Auswahl.</p>
+    <p>Ziehe die Kugeln mit dem Finger oder der Maus in die richtige Reihenfolge und bestätige deine Auswahl.</p>
     
     <div id="game-container">
-        <div class="kugel-container" id="zahl1" draggable="true">
+        <div class="kugel-container" id="zahl1" draggable="true" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
             <div class="kugel" style="background-image: url('zahl1.png');"></div>
             <span>1</span>
         </div>
-        <div class="kugel-container" id="zahl2" draggable="true">
+        <div class="kugel-container" id="zahl2" draggable="true" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
             <div class="kugel" style="background-image: url('zahl2.png');"></div>
             <span>8</span>
         </div>
-        <div class="kugel-container" id="zahl3" draggable="true">
+        <div class="kugel-container" id="zahl3" draggable="true" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
             <div class="kugel" style="background-image: url('zahl3.png');"></div>
             <span>6</span>
         </div>
-        <div class="kugel-container" id="zahl4" draggable="true">
+        <div class="kugel-container" id="zahl4" draggable="true" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
             <div class="kugel" style="background-image: url('zahl4.png');"></div>
             <span>9</span>
         </div>
@@ -94,43 +95,30 @@
     <p id="feedback"></p>
     
     <script>
-        let container = document.getElementById("game-container");
-        let items = Array.from(document.getElementsByClassName("kugel-container"));
-
-        function shuffleItems() {
-            for (let i = items.length - 1; i > 0; i--) {
-                let j = Math.floor(Math.random() * (i + 1));
-                container.appendChild(items[j]);
-            }
-        }
-        shuffleItems();
-
         let draggedItem = null;
-
-        items.forEach(item => {
-            item.addEventListener("dragstart", (event) => {
-                draggedItem = item;
-                event.dataTransfer.setData("text", draggedItem.id);
-            });
-            item.addEventListener("dragover", (event) => {
-                event.preventDefault();
-            });
-            item.addEventListener("drop", (event) => {
-                event.preventDefault();
-                let targetItem = event.target.closest(".kugel-container");
-                if (draggedItem && targetItem && draggedItem !== targetItem) {
-                    let draggedIndex = items.indexOf(draggedItem);
-                    let targetIndex = items.indexOf(targetItem);
-                    if (draggedIndex > targetIndex) {
-                        container.insertBefore(draggedItem, targetItem);
-                    } else {
-                        container.insertBefore(draggedItem, targetItem.nextSibling);
-                    }
-                    items = Array.from(document.getElementsByClassName("kugel-container"));
-                }
-            });
-        });
-
+        let startY = 0;
+        let startX = 0;
+        
+        function touchStart(event) {
+            draggedItem = event.target.closest(".kugel-container");
+            startX = event.touches[0].clientX;
+            startY = event.touches[0].clientY;
+        }
+        
+        function touchMove(event) {
+            if (!draggedItem) return;
+            let touch = event.touches[0];
+            let moveX = touch.clientX - startX;
+            let moveY = touch.clientY - startY;
+            draggedItem.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        }
+        
+        function touchEnd(event) {
+            if (!draggedItem) return;
+            draggedItem.style.transform = "";
+            draggedItem = null;
+        }
+        
         document.getElementById("submit-btn").addEventListener("click", () => {
             let order = Array.from(document.getElementsByClassName("kugel-container"))
                 .map(container => container.id);
