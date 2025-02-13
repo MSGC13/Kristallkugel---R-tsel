@@ -25,12 +25,13 @@
         }
         #game-container {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             gap: 20px;
             padding: 20px;
             flex-wrap: wrap;
+            position: relative;
         }
         .kugel-container {
             width: 180px;
@@ -40,9 +41,10 @@
             align-items: center;
             border: 5px solid gold;
             border-radius: 50%;
-            position: relative;
             background-color: rgba(0, 0, 0, 0.3);
             touch-action: none;
+            position: relative;
+            z-index: 10;
         }
         .kugel {
             width: 130px;
@@ -61,6 +63,7 @@
             background: rgba(0, 0, 0, 0.8);
             padding: 5px 10px;
             border-radius: 5px;
+            z-index: 20;
         }
         #feedback {
             margin-top: 20px;
@@ -131,9 +134,7 @@
             item.addEventListener("touchmove", (event) => {
                 if (!draggedItem) return;
                 let touchLocation = event.targetTouches[0];
-                draggedItem.style.position = "absolute";
-                draggedItem.style.left = touchLocation.pageX - 90 + "px";
-                draggedItem.style.top = touchLocation.pageY - 90 + "px";
+                draggedItem.style.transform = `translate(${touchLocation.pageX}px, ${touchLocation.pageY}px)`;
             });
         });
 
