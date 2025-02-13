@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Kristallkugel-Rätsel</title>
     <style>
         body {
@@ -10,16 +10,19 @@
             background: #2b1b0f;
             text-align: center;
             color: white;
+            overflow: hidden;
         }
         h1 {
             color: gold;
         }
         #game-container {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: center;
             align-items: center;
             gap: 20px;
             padding: 20px;
+            flex-wrap: wrap;
         }
         .kugel-container {
             width: 180px;
@@ -30,7 +33,7 @@
             border: 5px solid gold;
             border-radius: 50%;
             position: relative;
-            touch-action: manipulation;
+            touch-action: none;
             background-color: rgba(0, 0, 0, 0.3);
         }
         .kugel {
@@ -103,6 +106,7 @@
             draggedItem = event.target.closest(".kugel-container");
             startX = event.touches[0].clientX;
             startY = event.touches[0].clientY;
+            event.preventDefault();
         }
         
         function touchMove(event) {
@@ -111,12 +115,14 @@
             let moveX = touch.clientX - startX;
             let moveY = touch.clientY - startY;
             draggedItem.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            event.preventDefault();
         }
         
         function touchEnd(event) {
             if (!draggedItem) return;
             draggedItem.style.transform = "";
             draggedItem = null;
+            event.preventDefault();
         }
         
         document.getElementById("submit-btn").addEventListener("click", () => {
