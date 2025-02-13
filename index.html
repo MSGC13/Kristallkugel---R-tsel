@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -11,6 +8,7 @@
         html, body {
             width: 100%;
             height: 100%;
+            margin: 0;
             overflow: hidden;
             font-family: Arial, sans-serif;
             background: #2b1b0f;
@@ -20,7 +18,7 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            touch-action: none;
+            touch-action: manipulation;
         }
         h1 {
             color: gold;
@@ -33,7 +31,6 @@
             gap: 20px;
             padding: 20px;
             flex-wrap: wrap;
-            transform: rotate(90deg); /* Querformat erzwingen */
         }
         .kugel-container {
             width: 180px;
@@ -45,6 +42,7 @@
             border-radius: 50%;
             position: relative;
             background-color: rgba(0, 0, 0, 0.3);
+            touch-action: none;
         }
         .kugel {
             width: 130px;
@@ -122,26 +120,20 @@
         let draggedItem = null;
 
         items.forEach(item => {
-            item.addEventListener("dragstart", (event) => {
+            item.addEventListener("touchstart", (event) => {
                 draggedItem = item;
-                event.dataTransfer.setData("text", draggedItem.id);
+                event.target.style.opacity = "0.5";
             });
-            item.addEventListener("dragover", (event) => {
-                event.preventDefault();
+            item.addEventListener("touchend", (event) => {
+                event.target.style.opacity = "1";
+                draggedItem = null;
             });
-            item.addEventListener("drop", (event) => {
-                event.preventDefault();
-                let targetItem = event.target.closest(".kugel-container");
-                if (draggedItem && targetItem && draggedItem !== targetItem) {
-                    let draggedIndex = items.indexOf(draggedItem);
-                    let targetIndex = items.indexOf(targetItem);
-                    if (draggedIndex > targetIndex) {
-                        container.insertBefore(draggedItem, targetItem);
-                    } else {
-                        container.insertBefore(draggedItem, targetItem.nextSibling);
-                    }
-                    items = Array.from(document.getElementsByClassName("kugel-container"));
-                }
+            item.addEventListener("touchmove", (event) => {
+                if (!draggedItem) return;
+                let touchLocation = event.targetTouches[0];
+                draggedItem.style.position = "absolute";
+                draggedItem.style.left = touchLocation.pageX - 90 + "px";
+                draggedItem.style.top = touchLocation.pageY - 90 + "px";
             });
         });
 
@@ -160,3 +152,5 @@
     </script>
 </body>
 </html>
+
+
